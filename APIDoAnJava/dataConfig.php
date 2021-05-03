@@ -1,4 +1,7 @@
 <?php
+require 'vendor/autoload.php';
+include 'randomKey.php';
+use Firebase\JWT\JWT;
 class dataConfig{
     var $dbConnect;
 
@@ -7,7 +10,7 @@ class dataConfig{
     }
 
     function __destruct() {
-        $this->dbConnect->close();
+//        $this->dbConnect->close();
     }
 
     function connectDB(){
@@ -67,14 +70,33 @@ class dataConfig{
 
         return (isset($codes[$status])) ? $codes[$status] : ”;
     }
-    function sendResponse($body = "", $content_type = "text/html")
+    function sendResponse($Header = "", $body = "", $content_type = "text/html")
     {
-        $status_header = "HTTP/1.1 200 OK";
+        $secret_key = get_rand_alphanumeric(10);
+        $issuer_claim = "000webhostapp.com"; // this can be the servername
+        $audience_claim = "ThanhTai";
+        $issuedat_claim = time(); // issued at
+        $expire_claim = $issuedat_claim + 60; // expire time in seconds
+        $token = array(
+            "key" => $secret_key,
+            "status" => $Header,
+            "iss" => $issuer_claim,
+            "aud" => $audience_claim,
+            "iat" => $issuedat_claim,
+            "exp" => $expire_claim,
+            "data" => $body
+        );
+
+        $status_header = "HTTP/1.1 $Header OK";
         header($status_header);
         header("Content-type: " . $content_type);
 
+        $encodeJwt = JWT::encode($token, $secret_key);
+        $decodeJwt = JWT::decode($encodeJwt, $secret_key, array('HS256'));
+
         $response = array(
-            "response" => $body
+            "token" => $encodeJwt,
+            "decode" => $decodeJwt
         );
 
         $encode = json_encode($response);

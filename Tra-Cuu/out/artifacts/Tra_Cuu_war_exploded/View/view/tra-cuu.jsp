@@ -11,8 +11,8 @@
     <title>Home</title>
     <link rel="stylesheet" href="View/Effect/nicepage.css" media="screen">
     <link rel="stylesheet" href="View/Effect/Home.css" media="screen">
-    <script class="u-script" type="text/javascript" src="View/Effect/jquery.js" defer=""></script>
-    <script class="u-script" type="text/javascript" src="View/Effect/nicepage.js" defer=""></script>
+<%--    <script class="u-script" type="text/javascript" src="View/Effect/jquery.js" defer=""></script>--%>
+<%--    <script class="u-script" type="text/javascript" src="View/Effect/nicepage.js" defer=""></script>--%>
     <meta name="generator" content="Nicepage 3.12.1, nicepage.com">
 
 

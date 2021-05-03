@@ -32,19 +32,46 @@ class Data
                         while ($row = $this->result->fetch_assoc()) {
                             $resultSet[] = $row;
                         }
-                        $this->dbReference->sendResponse($resultSet);
+                        $this->dbReference->sendResponse("200",$resultSet);
                     }else{
-                        $this->dbReference->sendResponse('{"items":null}');
+                        $this->dbReference->sendResponse("400",'{"items":null}');
                     }
                 }catch (Exception $ex){
-                    $this->dbReference->sendResponse('{"items":null}');
+                    $this->dbReference->sendResponse("400", '{"items":null}');
                 }
             }
             else{
-                $this->dbReference->sendResponse('not found value');
+                $this->dbReference->sendResponse("400",'not found value');
             }
         }
     }
+
+    function updateData(){
+        $this->dbReference = new DataConfig();
+        $this->dbConnect = $this->dbReference->connectDB();
+
+        if(isset($_GET['Id'])&& isset($_GET['Status'])){
+            $Id = $_GET['Id'];
+            $Status = $_GET['Status'];
+            if ($Status == "Ok"){
+                $TinhTrang = "Hoàn thành";
+            }
+            else{
+                $TinhTrang = "Chưa hoàn thành";
+            }
+                $sql1 = "UPDATE `apidoanjava` SET `Status`='".$TinhTrang."' WHERE Repair_Id = '".$Id."'";
+                if($this->dbConnect->query($sql1) === true){
+                    $this->dbReference->sendResponse(200, "Ok");
+                }
+            else{
+                $this->dbReference->sendResponse(400, "Not Ok");
+            }
+        }
+        else{
+            $this->dbReference->sendResponse(400, "Not Ok");
+        }
+    }
+
     function insertItemsJson(){
         $this->dbReference = new DataConfig();
         $this->dbConnect = $this->dbReference->connectDB();
@@ -52,18 +79,37 @@ class Data
         $json  = file_get_contents('php://input', true);
         $data = json_decode($json);
         if($json != null && $data->name != null){
+//            $sqlDelete = "Delete from apidoanjava";
+//            $this->dbConnect->query($sqlDelete);
+
             $sql1 = "insert into apidoanjava (Repair_Id, Customer_Name, Laptop_Name, Email, Status)
                     values ('$data->name', '$data->name1', '$data->name2', '$data->name3', '$data->name4')";
             if($this->dbConnect->query($sql1) === true){
-                $this->dbReference->sendResponse(201, '{"message":'.$this->dbReference->getStatusCodeMeeage(201).'}');
+                $this->dbReference->sendResponse(200, "Ok");
             }
             else{
-                $this->dbReference->sendResponse(400, $this->dbReference->getStatusCodeMeeage(400));
+                $this->dbReference->sendResponse(400, "Not Ok");
             }
         }
         else{
-            $this->dbReference->sendResponse(400, $this->dbReference->getStatusCodeMeeage(300));
+            $this->dbReference->sendResponse(400, "Not Ok");
         }
+    }
+
+    function encodeToken(){
+        $this->dbReference = new DataConfig();
+        $json  = file_get_contents('php://input', true);
+        $data = json_decode($json);
+        if($json != null && $data->name != null){
+            $this->dbReference->sendResponse(200, $data->name);
+        }
+        else{
+            $this->dbReference->sendResponse(400, "Not Ok");
+        }
+    }
+
+    function decodeToken(){
+
     }
 
 }
