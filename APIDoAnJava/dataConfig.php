@@ -87,7 +87,7 @@ class dataConfig{
             "data" => $body
         );
 
-        $status_header = "HTTP/1.1 $Header OK";
+        $status_header = "HTTP/1.1 $Header";
         header($status_header);
         header("Content-type: " . $content_type);
 
@@ -97,6 +97,17 @@ class dataConfig{
         $response = array(
             "token" => $encodeJwt,
             "decode" => $decodeJwt
+        );
+
+        $encode = json_encode($response);
+        echo $encode;
+    }
+
+    function sendResponseNotEncode($Header = "", $body = "", $content_type = "text/html")
+    {
+        $response = array(
+            "Status" => $Header,
+            "Check" => $body
         );
 
         $encode = json_encode($response);

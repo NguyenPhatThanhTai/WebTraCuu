@@ -1,6 +1,7 @@
 <?php
 include("dataConfig.php");
-
+require 'vendor/autoload.php';
+use Firebase\JWT\JWT;
 class Data
 {
     private $dbReference;
@@ -109,7 +110,32 @@ class Data
     }
 
     function decodeToken(){
+        $this->dbReference = new DataConfig();
+        $json  = file_get_contents('php://input', true);
+        $data = json_decode($json);
+        if($json != null && $data->name != null){
+            if ($this->decode($data->name, $data->name1, $data->name2)){
+                $this->dbReference->sendResponseNotEncode(200, "Valid");
+            }
+            else{
+                $this->dbReference->sendResponseNotEncode(200, "Invalid");
+            }
+        }
+        else{
+            $this->dbReference->sendResponseNotEncode(400, "Not Ok");
+        }
+    }
 
+    function decode($token, $key, $typ){
+        $valid = false;
+        $decodeJwt = JWT::decode($token, $key, array($typ));
+        $json = json_encode($decodeJwt);
+        $json = json_decode($json, true);
+
+        if ($json['data'] == "Logined"){
+            $valid = true;
+        }
+        return $valid;
     }
 
 }
