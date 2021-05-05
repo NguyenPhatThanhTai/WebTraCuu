@@ -33,16 +33,16 @@ class Data
                         while ($row = $this->result->fetch_assoc()) {
                             $resultSet[] = $row;
                         }
-                        $this->dbReference->sendResponse("200",$resultSet);
+                        $this->dbReference->sendResponse(200,$resultSet);
                     }else{
-                        $this->dbReference->sendResponse("400",'{"items":null}');
+                        $this->dbReference->sendResponse(204,'{"items":null}');
                     }
                 }catch (Exception $ex){
-                    $this->dbReference->sendResponse("400", '{"items":null}');
+                    $this->dbReference->sendResponse(204, '{"items":null}');
                 }
             }
             else{
-                $this->dbReference->sendResponse("400",'not found value');
+                $this->dbReference->sendResponse(204,'not found value');
             }
         }
     }
@@ -51,27 +51,97 @@ class Data
         $this->dbReference = new DataConfig();
         $this->dbConnect = $this->dbReference->connectDB();
 
-        if(isset($_GET['Id'])&& isset($_GET['Status'])){
-            $Id = $_GET['Id'];
-            $Status = $_GET['Status'];
-            if ($Status == "Ok"){
-                $TinhTrang = "Hoàn thành";
-            }
-            else{
-                $TinhTrang = "Chưa hoàn thành";
-            }
-                $sql1 = "UPDATE `apidoanjava` SET `Status`='".$TinhTrang."' WHERE Repair_Id = '".$Id."'";
-                if($this->dbConnect->query($sql1) === true){
-                    $this->dbReference->sendResponse(200, "Ok");
+        $json  = file_get_contents('php://input', true);
+        $data = json_decode($json);
+        if($json != null && $data->name != null){
+            try {
+                if ($this->decode($data->name2, $data->name3, $data->name4)){
+                    if ($data->name1 == "Ok"){
+                        $TinhTrang = "Hoàn thành";
+                    }
+                    else{
+                        $TinhTrang = "Chưa hoàn thành";
+                    }
+                    $sql1 = "UPDATE `apidoanjava` SET `Status`='".$TinhTrang."' WHERE Repair_Id = '".$data->name."'";
+                    if($this->dbConnect->query($sql1) === true){
+                        $this->dbReference->sendResponseNotEncode(200, "Ok");
+                    }
+                    else{
+                        $this->dbReference->sendResponseNotEncode(400, "Not Ok");
+                    }
                 }
-            else{
-                $this->dbReference->sendResponse(400, "Not Ok");
+                else{
+                    $this->dbReference->sendResponseNotEncode(401, "Invalid Token, Token maybe experience");
+                }
+            }catch (Exception $ex){
+                $this->dbReference->sendResponseNotEncode(401, "Invalid Token, Token maybe experience");
             }
         }
         else{
-            $this->dbReference->sendResponse(400, "Not Ok");
+            $this->dbReference->sendResponseNotEncode(400, "Not Ok");
         }
     }
+
+    function deleteData(){
+        $this->dbReference = new DataConfig();
+        $this->dbConnect = $this->dbReference->connectDB();
+
+        $json  = file_get_contents('php://input', true);
+        $data = json_decode($json);
+        if($json != null && $data->name != null){
+            try {
+                if ($this->decode($data->name1, $data->name2, $data->name3)){
+                    $sql1 = "Delete from apidoanjava WHERE Repair_Id = '".$data->name."'";
+                    if($this->dbConnect->query($sql1) === true){
+                        $this->dbReference->sendResponseNotEncode(200, "Ok");
+                    }
+                    else{
+                        $this->dbReference->sendResponseNotEncode(400, "Not Ok");
+                    }
+                }
+                else{
+                    $this->dbReference->sendResponseNotEncode(401, "Invalid Token, Token maybe experience");
+                }
+            }catch (Exception $ex){
+                $this->dbReference->sendResponseNotEncode(401, "Invalid Token, Token maybe experience");
+            }
+        }
+        else{
+            $this->dbReference->sendResponseNotEncode(400, "Not Ok");
+        }
+    }
+
+    function updateCustomer(){
+        $this->dbReference = new DataConfig();
+        $this->dbConnect = $this->dbReference->connectDB();
+
+        $json  = file_get_contents('php://input', true);
+        $data = json_decode($json);
+        if($json != null && $data->name != null){
+            try {
+                if ($this->decode($data->name4, $data->name5, $data->name6)){
+                    $sql1 = "UPDATE `apidoanjava` SET `Customer_Name`='".$data->name1."', `Laptop_Name` = '".$data->name2."', `Email` = '".$data->name3."'
+                    WHERE Repair_Id = '".$data->name."'";
+                    if($this->dbConnect->query($sql1) === true){
+                        $this->dbReference->sendResponseNotEncode(200, "Ok");
+                    }
+                    else{
+                        $this->dbReference->sendResponseNotEncode(400, "Not Ok");
+                    }
+                }
+                else{
+                    $this->dbReference->sendResponseNotEncode(401, "Invalid Token, Token maybe experience");
+                }
+            }catch (Exception $ex){
+                $this->dbReference->sendResponseNotEncode(401, "Invalid Token, Token maybe experience");
+            }
+        }
+        else{
+            $this->dbReference->sendResponseNotEncode(400, "Not Ok");
+        }
+    }
+
+
 
     function insertItemsJson(){
         $this->dbReference = new DataConfig();
@@ -80,20 +150,26 @@ class Data
         $json  = file_get_contents('php://input', true);
         $data = json_decode($json);
         if($json != null && $data->name != null){
-//            $sqlDelete = "Delete from apidoanjava";
-//            $this->dbConnect->query($sqlDelete);
-
-            $sql1 = "insert into apidoanjava (Repair_Id, Customer_Name, Laptop_Name, Email, Status)
+            try {
+                if ($this->decode($data->name5, $data->name6, $data->name7)){
+                    $sql1 = "insert into apidoanjava (Repair_Id, Customer_Name, Laptop_Name, Email, Status)
                     values ('$data->name', '$data->name1', '$data->name2', '$data->name3', '$data->name4')";
-            if($this->dbConnect->query($sql1) === true){
-                $this->dbReference->sendResponse(200, "Ok");
-            }
-            else{
-                $this->dbReference->sendResponse(400, "Not Ok");
+                    if($this->dbConnect->query($sql1) === true){
+                        $this->dbReference->sendResponseNotEncode(200, "Ok");
+                    }
+                    else{
+                        $this->dbReference->sendResponseNotEncode(204, "Not Ok");
+                    }
+                }
+                else{
+                    $this->dbReference->sendResponseNotEncode(401, "Invalid Token, Token maybe experience");
+                }
+            }catch (Exception $ex){
+                $this->dbReference->sendResponseNotEncode(401, "Invalid Token, Token maybe experience");
             }
         }
         else{
-            $this->dbReference->sendResponse(400, "Not Ok");
+            $this->dbReference->sendResponseNotEncode(400, "Not Ok");
         }
     }
 
@@ -118,7 +194,7 @@ class Data
                 $this->dbReference->sendResponseNotEncode(200, "Valid");
             }
             else{
-                $this->dbReference->sendResponseNotEncode(200, "Invalid");
+                $this->dbReference->sendResponseNotEncode(400, "Invalid");
             }
         }
         else{
@@ -128,12 +204,16 @@ class Data
 
     function decode($token, $key, $typ){
         $valid = false;
-        $decodeJwt = JWT::decode($token, $key, array($typ));
-        $json = json_encode($decodeJwt);
-        $json = json_decode($json, true);
+        try {
+            $decodeJwt = JWT::decode($token, $key, array($typ));
+            $json = json_encode($decodeJwt);
+            $json = json_decode($json, true);
 
-        if ($json['data'] == "Logined"){
-            $valid = true;
+            if ($json['data'] == "Logined"){
+                $valid = true;
+            }
+        }catch (Exception $ex){
+            $valid = false;
         }
         return $valid;
     }
